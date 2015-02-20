@@ -93,7 +93,6 @@ int main(int argc, char **argv){
   ofstream y_seq("y_seq.mio");
   ofstream y_con("y_con.mio");
   for (int i = step; i <= max_num; i += step){
-    //cout << "here " << i << endl;
     A = (int *)malloc(i * i * sizeof(int));
     B = (int *)malloc(i * i * sizeof(int));
     C = (int *)malloc(i * i * sizeof(int));
@@ -117,9 +116,6 @@ int main(int argc, char **argv){
     elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
     y_con << elapsed_secs << endl;
     
-    //print_matrix(C, i);
-    //print_matrix(D, i);    
-
     if(!check_matrix(C, D, i)){
       cout << "something wrong in " << i << endl;
     }
