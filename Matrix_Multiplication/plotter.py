@@ -7,7 +7,13 @@ def m_load(fname) :
 x = m_load('build/x.mio')
 y_seq = m_load('build/y_seq.mio')
 y_con = m_load('build/y_con.mio')
-plt.plot(x, y_seq, 'r')
-plt.plot(x, y_con, 'b')
+plt.title ('Matrix Multiplication Exec. Time comparison')
+plt.xlabel ('Matrix size')
+plt.ylabel ('Execution time (seconds)')
+plt.plot (x, y_seq, 'r', label = 'Seq Time (Unoptimized, Core i7 3770)')
+plt.plot (x, y_con, 'b', label = 'Parallel Time (GTX 760)')
+plt.legend (loc='upper left')
+
+
 plt.hold()
 plt.show()
