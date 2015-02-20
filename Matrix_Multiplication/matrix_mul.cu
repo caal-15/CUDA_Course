@@ -12,6 +12,16 @@ void fill_matrix_random(int *mat, int size){
   }
 }
 
+bool check_matrix(int *A, int *B, int size){
+  for (int i = 0; i < size; i++){
+    for (int j = 0; j < size; j++){
+      if (A[i * size + j] != B[i * size +j])
+        return false;
+    }
+  }
+  return true;
+}
+
 void print_matrix(int *mat, int size){
   cout << "------------" << endl;
   for (int i = 0; i < size; i++){
@@ -77,7 +87,7 @@ int main(int argc, char **argv){
   
   const int max_num = atoi(argv[1]);
   const int step = atoi(argv[2]);
-  int *A, *B, *C;
+  int *A, *B, *C, *D;
   ofstream x("x.mio");
   ofstream y_seq("y_seq.mio");
   ofstream y_con("y_con.mio");
@@ -86,6 +96,7 @@ int main(int argc, char **argv){
     A = (int *)malloc(i * i * sizeof(int));
     B = (int *)malloc(i * i * sizeof(int));
     C = (int *)malloc(i * i * sizeof(int));
+    D = (int *)malloc(i * i * sizeof(int));
     fill_matrix_random(A, i);
     fill_matrix_random(B, i);
     x << i << endl;
@@ -99,14 +110,19 @@ int main(int argc, char **argv){
     
     //Measure concurrent time
     begin = clock();
-    mat_mul_con(A, B, C, i);
+    mat_mul_con(A, B, D, i);
     end = clock();
     elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
     y_con << elapsed_secs << endl;
     
+    if(!check_matrix(C, D, i)){
+      cout << "something wrong in " << i << endl;
+    }
+    
     free(A);
     free(B);
     free(C);
+    free(D);
   }
   return 0;
 }
