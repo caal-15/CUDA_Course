@@ -72,6 +72,7 @@ void mat_mul_con(int *m_A, int *m_B, int *m_C, int size){
     dim3 dimGrid(ceil(size/32.0), ceil(size/32.0), 1);
     dim3 dimBlock(32, 32, 1);
     mat_mul_kernel<<<dimGrid, dimBlock>>> (d_A, d_B, d_C, size);
+    cudaDeviceSynchronize();
     //4. Copy d_C to C from device, free device memory (cusdaFree), sync if neccessary
     cudaMemcpy (m_C, d_C, total_size, cudaMemcpyDeviceToHost);
     cudaFree(d_A);
@@ -111,10 +112,14 @@ int main(int argc, char **argv){
     //Measure concurrent time
     begin = clock();
     mat_mul_con(A, B, D, i);
+    cudaDeviceSynchronize();
     end = clock();
     elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
     y_con << elapsed_secs << endl;
     
+    //print_matrix(C, i);
+    //print_matrix(D, i);    
+
     if(!check_matrix(C, D, i)){
       cout << "something wrong in " << i << endl;
     }
