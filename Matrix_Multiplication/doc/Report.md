@@ -85,3 +85,6 @@ así: ./mul max_number 32 64 64, donde los valores de max_number fueron: 128, 25
 ![](https://raw.githubusercontent.com/caal-15/CUDA_Course/master/Matrix_Multiplication/doc/Plots_Float/non_tiled_vs_tiled_1024.png)
 - Max A 2112 * 2048, B 2048 * 2112
 ![](https://raw.githubusercontent.com/caal-15/CUDA_Course/master/Matrix_Multiplication/doc/Plots_Float/non_tiled_vs_tiled_2048.png)
+
+###Coeficientes de acelereción Obtenidos
+- Matrices 128 + offset 64 : Enteros
