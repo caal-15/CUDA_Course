@@ -33,7 +33,28 @@ así: ./mul max_number 32 64 64, donde los valores de max_number fueron: 128, 25
 
 ##Resultados Obtenidos
 ###Para enteros
+####Secuencial vs Paralelo (Sin Tiling)
 - Max A 128 * 192, B 192 * 128
 ![](https://raw.githubusercontent.com/caal-15/CUDA_Course/master/Matrix_Multiplication/doc/Plots_Int/seq_vs_con_128.png)
+- Max A 320 * 256, B 256 * 320
+![](https://raw.githubusercontent.com/caal-15/CUDA_Course/master/Matrix_Multiplication/doc/Plots_Int/seq_vs_con_256.png)
+- Max A 576 * 512, B 512 * 576
+![](https://raw.githubusercontent.com/caal-15/CUDA_Course/master/Matrix_Multiplication/doc/Plots_Int/seq_vs_con_512.png)
+- Max A 1088 * 1024, B 1024 * 1088
+![](https://raw.githubusercontent.com/caal-15/CUDA_Course/master/Matrix_Multiplication/doc/Plots_Int/seq_vs_con_1024.png)
+- Max A 2112 * 2048, B 2048 * 2112
+![](https://raw.githubusercontent.com/caal-15/CUDA_Course/master/Matrix_Multiplication/doc/Plots_Int/seq_vs_con_2048.png)
+
+####Paralelo (Sin Tiling) vs Paralelo (Con Tiling)
+- Max A 128 * 192, B 192 * 128
+![](https://raw.githubusercontent.com/caal-15/CUDA_Course/master/Matrix_Multiplication/doc/Plots_Int/non_tiled_vs_tiled_128.png)
+- Max A 320 * 256, B 256 * 320
+![](https://raw.githubusercontent.com/caal-15/CUDA_Course/master/Matrix_Multiplication/doc/Plots_Int/non_tiled_vs_tiled_256.png)
+- Max A 576 * 512, B 512 * 576
+![](https://raw.githubusercontent.com/caal-15/CUDA_Course/master/Matrix_Multiplication/doc/Plots_Int/non_tiled_vs_tiled_512.png)
+- Max A 1088 * 1024, B 1024 * 1088
+![](https://raw.githubusercontent.com/caal-15/CUDA_Course/master/Matrix_Multiplication/doc/Plots_Int/non_tiled_vs_tiled_1024.png)
+- Max A 2112 * 2048, B 2048 * 2112
+![](https://raw.githubusercontent.com/caal-15/CUDA_Course/master/Matrix_Multiplication/doc/Plots_Int/non_tiled_vs_tiled_2048.png)
 
 
