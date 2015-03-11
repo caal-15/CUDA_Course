@@ -81,32 +81,32 @@ Todas las multiplicaciones soportan multiplicación entre matrices de cualquier 
 
 - Matrices 128 + offset 64 :
   - Enteros 
-    - Secuencial / Paralelo
-    - Paralelo No Tiled / Paralelo Tiled
+    - Secuencial / Paralelo = 0.007244 / 0.000808 = 8.97x
+    - Paralelo No Tiled / Paralelo Tiled = 0.000808 / 0.000684 = 1.18x
   - Flotantes 
-    - Secuencial / Paralelo
-    - Paralelo No Tiled / Paralelo Tiled
+    - Secuencial / Paralelo = 0.007357 / 0.000847 = 8.69x
+    - Paralelo No Tiled / Paralelo Tiled = 0.000847 / 0.000583 = 1.45x
 - Matrices 256 + offset 64 :
   - Enteros 
     - Secuencial / Paralelo = 0.039388 / 0.001923 = 20.48x
     - Paralelo No Tiled / Paralelo Tiled = 0.001923 / 0.001069 = 1.8x
   - Flotantes 
-    - Secuencial / Paralelo 
-    - Paralelo No Tiled / Paralelo Tiled
+    - Secuencial / Paralelo = 0.047955 / 0.001909 = 25.12x
+    - Paralelo No Tiled / Paralelo Tiled = 0.001909 / 0.001047 = 1.82x
 - Matrices 512 + offset 64 :
   - Enteros 
     - Secuencial / Paralelo = 0.148064 / 0.007128 = 20.77x
     - Paralelo No Tiled / Paralelo Tiled = 0.007128 / 0.002922 = 2.45x
   - Flotantes 
-    - Secuencial / Paralelo 
-    - Paralelo No Tiled / Paralelo Tiled
+    - Secuencial / Paralelo = 0.179793 / 0.006647 = 27.05x
+    - Paralelo No Tiled / Paralelo Tiled = 0.006647 / 0.002893 = 2.3x
 - Matrices 1024 + offset 64 :
   - Enteros 
     - Secuencial / Paralelo = 7.67902 / 0.044369 = 173.07x
     - Paralelo No Tiled / Paralelo Tiled = 0.044369 / 0.015525 = 2.86x
   - Flotantes 
-    - Secuencial / Paralelo 
-    - Paralelo No Tiled / Paralelo Tiled
+    - Secuencial / Paralelo = 7.65511 / 0.040422 = 189.38x
+    - Paralelo No Tiled / Paralelo Tiled = 0.040422 / 0.015055 = 2.68x
 - Matrices 2048 + offset 64 :
   - Enteros 
     - Secuencial / Paralelo = 65.7892 / 0.302649 = 217.38x
@@ -122,3 +122,5 @@ Todas las multiplicaciones soportan multiplicación entre matrices de cualquier 
 - Si bien el aumento no parece tan sustancial entre el algoritmo paralelo no tiled, y el tiled (3x), hay que considerar que esto significaría un algoritmo 3 veces mas rápido respecto al no tiled, y comparandolo con el secuencial significaría una mejora de alrededor de 600x.
 - Mas aún los coeficientes de mejora de desempeño entre el no tiled y el tiled tienden a crecer con la talla de las matrices.
 - Esta mejora viene con un costo en complejidad del algoritmo para el programador.
+- Si no se utiliza Tiling, el algoritmo paralelo demora considerablemente mas en su primera ejecución.
+- El desempeño con flotatnes pareciera ser parcialmente mejor que con enteros para el algoritmo paralelo sin tiling.
