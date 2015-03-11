@@ -109,7 +109,7 @@ void mat_mul_con(int *m_A, int *m_B, int *m_C, int A_rows, int A_cols, int B_row
     cudaMemcpy(d_A, m_A, A_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_B, m_B, B_size, cudaMemcpyHostToDevice);
     //3. Kernel Launch Code
-    dim3 dimGrid(ceil(max(A_rows, B_rows) / float (BLOCK_SIZE)), ceil(max(A_cols, B_cols) / float (BLOCK_SIZE)), 1);
+    dim3 dimGrid(ceil(max(A_cols, B_cols) / float(BLOCK_SIZE)), ceil(max(A_rows, B_rows) / float(BLOCK_SIZE)), 1);
     dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE, 1);
     mat_mul_kernel<<<dimGrid, dimBlock>>> (d_A, d_B, d_C, A_rows, A_cols, B_rows, B_cols);
     cudaDeviceSynchronize();
@@ -134,7 +134,7 @@ void mat_mul_con_tiled(int *m_A, int *m_B, int *m_C, int A_rows, int A_cols, int
     cudaMemcpy(d_A, m_A, A_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_B, m_B, B_size, cudaMemcpyHostToDevice);
     //3. Kernel Launch Code
-    dim3 dimGrid(ceil(max(A_rows, B_rows) / float(BLOCK_SIZE)), ceil(max(A_cols, B_cols) / float(BLOCK_SIZE)), 1);
+    dim3 dimGrid(ceil(max(A_cols, B_cols) / float(BLOCK_SIZE)), ceil(max(A_rows, B_rows) / float(BLOCK_SIZE)), 1);
     dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE, 1);
     mat_mul_kernel_tiled<<<dimGrid, dimBlock>>> (d_A, d_B, d_C, A_rows, A_cols, B_rows, B_cols);
     cudaDeviceSynchronize();
@@ -205,7 +205,7 @@ int main(int argc, char **argv){
     if (check_matrix(C, D, i + offset_A, i + offset_B))
       cout << "All good" << endl;
     else
-      cout << "Something Went Wrong" << endl;
+      cout << "Something Went Wrong ARow " << i + offset_A << " ACol " << i << " BCol " << i + offset_B  << endl;
     cout << "-----------" << endl;
 
     free(A);
