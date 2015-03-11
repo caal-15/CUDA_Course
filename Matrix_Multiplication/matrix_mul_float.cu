@@ -203,10 +203,7 @@ int main(int argc, char **argv){
       cout << "Something Went Wrong" << endl;
     cout << "-----------" << endl;
 
-    /*print_matrix(A, i + offset_A, i);
-    print_matrix(B, i, i + offset_B);
-    print_matrix(C, i + offset_A, i + offset_B);
-    print_matrix(D, i + offset_A, i + offset_B);*/
+    
 
     begin = clock();
     mat_mul_con_tiled(A, B, D, i + offset_A, i, i, i + offset_B);
