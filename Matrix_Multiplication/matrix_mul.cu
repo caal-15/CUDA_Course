@@ -95,33 +95,6 @@ __global__ void mat_mul_kernel_tiled(int *m_A, int *m_B, int *m_C, int A_rows, i
 
 }
 
-/*__global__ void mat_mul_kernel_tiled (int *A, int *B, int *C, int ARows, int ACols, int BRows, int BCols){
-  int CValue = 0;
-
-  int Row = blockIdx.y*BLOCK_SIZE + threadIdx.y;
-  int Col = blockIdx.x*BLOCK_SIZE + threadIdx.x;
-
-  __shared__ int As[BLOCK_SIZE][BLOCK_SIZE];
-  __shared__ int Bs[BLOCK_SIZE][BLOCK_SIZE];
-
-  for (int k = 0; k < (BLOCK_SIZE + ACols - 1)/BLOCK_SIZE; k++) {
-
-       if (k*BLOCK_SIZE + threadIdx.x < ACols && Row < ARows)   As[threadIdx.y][threadIdx.x] = A[Row*ACols + k*BLOCK_SIZE + threadIdx.x];
-       else                                                   As[threadIdx.y][threadIdx.x] = 0;
-
-       if (k*BLOCK_SIZE + threadIdx.y < BRows && Col < BCols)   Bs[threadIdx.y][threadIdx.x] = B[(k*BLOCK_SIZE + threadIdx.y)*BCols + Col];
-       else                                                   Bs[threadIdx.y][threadIdx.x] = 0;
-
-       __syncthreads();
-
-       for (int n = 0; n < BLOCK_SIZE; ++n) CValue += As[threadIdx.y][n] * Bs[n][threadIdx.x];
-
-       __syncthreads();
-    }
-
-    if (Row < ARows && Col < BCols) C[((blockIdx.y * blockDim.y + threadIdx.y)*BCols)+(blockIdx.x*blockDim.x)+threadIdx.x]=CValue;
-}*/
-
 void mat_mul_con(int *m_A, int *m_B, int *m_C, int A_rows, int A_cols, int B_rows, int B_cols){
     int A_size = A_rows * A_cols * sizeof(int);
     int B_size = B_rows * B_cols * sizeof(int);
@@ -227,10 +200,7 @@ int main(int argc, char **argv){
     end = clock();
     elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
     y_con_tiled << elapsed_secs << endl;
-    /*print_matrix(A, i + offset_A, i);
-    print_matrix(B, i, i + offset_B);
-    print_matrix(C, i + offset_A, i + offset_B);
-    print_matrix(D, i + offset_A, i + offset_B);*/
+    
     cout << "Tiled: ";
     if (check_matrix(C, D, i + offset_A, i + offset_B))
       cout << "All good" << endl;
