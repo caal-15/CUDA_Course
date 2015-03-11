@@ -21,7 +21,7 @@ Donde:
 - offset_B es un número que se le sumará al número de columnas de B para generar una matriz rectangular en vez de cuadrada.
 
 ##Consideraciones
-Todas las multiplicaciones soportan multiplicación entre matrices de cualquier tamaño, excepto la versión tiled, en la cual las matrices deben ser simñetricas y múltiplos del tamaño del tile. Por este motivo todas las pruebas se realizaron así: ./mul max_number 32 64 64, donde los valores de max_number fueron: 128, 256, 512, 1024, 2048.
+Todas las multiplicaciones soportan multiplicación entre matrices de cualquier tamaño. Todas las pruebas se realizaron así: ./mul max_number 32 64 64, donde los valores de max_number fueron: 128, 256, 512, 1024, 2048.
 
 ##Resultados Obtenidos
 
@@ -111,9 +111,6 @@ Todas las multiplicaciones soportan multiplicación entre matrices de cualquier 
   - Enteros 
     - Secuencial / Paralelo = 65.7892 / 0.302649 = 217.38x
     - Paralelo No Tiled / Paralelo Tiled = 0.302649 / 0.098106 = 3.08x
-  - Flotantes 
-    - Secuencial / Paralelo 
-    - Paralelo No Tiled / Paralelo Tiled
 
 ##Conclusiones
 
