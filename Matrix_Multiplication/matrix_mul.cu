@@ -73,7 +73,7 @@ __global__ void mat_mul_kernel_tiled(int *m_A, int *m_B, int *m_C, int A_rows, i
   int col = blockCol * BLOCK_SIZE + threadCol;
 
   int sum = 0;
-  for (int sm = 0; sm < A_cols / BLOCK_SIZE; sm++){
+  for (int sm = 0; sm < ceil(A_cols / float (BLOCK_SIZE)); sm++){
     if (row < A_rows && (sm * BLOCK_SIZE + threadCol) < A_cols){
       s_A[threadRow][threadCol] = m_A[(row) * A_cols + (sm * BLOCK_SIZE + threadCol)];
     } else{
@@ -136,7 +136,7 @@ void mat_mul_con(int *m_A, int *m_B, int *m_C, int A_rows, int A_cols, int B_row
     cudaMemcpy(d_A, m_A, A_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_B, m_B, B_size, cudaMemcpyHostToDevice);
     //3. Kernel Launch Code
-    dim3 dimGrid(ceil(max(A_rows, B_rows)/BLOCK_SIZE), ceil(max(A_cols, B_cols)/BLOCK_SIZE), 1);
+    dim3 dimGrid(ceil(max(A_rows, B_rows) / float (BLOCK_SIZE)), ceil(max(A_cols, B_cols) / float (BLOCK_SIZE)), 1);
     dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE, 1);
     mat_mul_kernel<<<dimGrid, dimBlock>>> (d_A, d_B, d_C, A_rows, A_cols, B_rows, B_cols);
     cudaDeviceSynchronize();
@@ -161,7 +161,7 @@ void mat_mul_con_tiled(int *m_A, int *m_B, int *m_C, int A_rows, int A_cols, int
     cudaMemcpy(d_A, m_A, A_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_B, m_B, B_size, cudaMemcpyHostToDevice);
     //3. Kernel Launch Code
-    dim3 dimGrid(ceil(max(A_rows, B_rows)/BLOCK_SIZE), ceil(max(A_cols, B_cols)/BLOCK_SIZE), 1);
+    dim3 dimGrid(ceil(max(A_rows, B_rows) / float(BLOCK_SIZE)), ceil(max(A_cols, B_cols) / float(BLOCK_SIZE)), 1);
     dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE, 1);
     mat_mul_kernel_tiled<<<dimGrid, dimBlock>>> (d_A, d_B, d_C, A_rows, A_cols, B_rows, B_cols);
     cudaDeviceSynchronize();
