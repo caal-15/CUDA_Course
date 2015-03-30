@@ -16,7 +16,7 @@ bool cmp_float(float a, float b){
 void fill_matrix_random(float *mat, int rows, int cols){
   for (int i = 0; i < rows; i++){
     for (int j = 0; j < cols; j++){
-      mat[i * cols + j] = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/10.0));;
+      mat[i * cols + j] = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/10.0));
     }
   }
 }
@@ -203,7 +203,7 @@ int main(int argc, char **argv){
       cout << "Something Went Wrong" << endl;
     cout << "-----------" << endl;
 
-    
+
 
     begin = clock();
     mat_mul_con_tiled(A, B, D, i + offset_A, i, i, i + offset_B);
