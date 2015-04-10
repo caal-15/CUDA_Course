@@ -7,7 +7,7 @@ using namespace std;
 
 void fill_vector_random (int *vec, int size, int max = 10){
   for (int i = 0; i < size; i++)
-    vec[i] = rand() % max;
+    vec[i] = 1;
 }
 
 void print_vector (int *vec, int size){
@@ -42,7 +42,8 @@ __global__ void vector_reduction_kernel (int *vec, int *out){
 }
 
 int vector_reduction_con (int *vec, int size){
-  while (size > BLOCK_SIZE * 2){
+  while (size >= BLOCK_SIZE * 2){
+    
     int *d_vec, *d_out;
     cudaMalloc (&d_vec, size * sizeof(int));
     cudaMalloc (&d_out, (size / (BLOCK_SIZE * 2)) * sizeof(int));
@@ -52,6 +53,7 @@ int vector_reduction_con (int *vec, int size){
     dim3 dimBlock (BLOCK_SIZE, 1, 1);
 
     vector_reduction_kernel<<<dimGrid, dimBlock>>> (d_vec, d_out);
+    cudaDeviceSynchronize();
     size = size / (BLOCK_SIZE * 2);
 
     cudaMemcpy (vec, d_out, size * sizeof(int), cudaMemcpyDeviceToHost);
@@ -65,14 +67,42 @@ int vector_reduction_con (int *vec, int size){
 
 }
 
-int main(){
-  int size = 1024;
+int main(int argc, char **argv){
+  if (argc < 2){
+    cout << "Usage: ./reduction max_vector_size" << endl;
+    return 0;
+  }
+  const int max_size = atoi(argv[1]);
   srand (time (NULL));
-  int vec[size];
-  fill_vector_random(vec, size);
+  ofstream x("x.mio"),
+  y_seq ("y_seq.mio"),
+  y_con ("y_con.mio");
+  clock_t begin, end;
+  double secs;
+  int ans1, ans2;
+  int first_vec[64];
+  fill_vector_random(first_vec, 64);
+  vector_reduction_con (first_vec, 64);
+  for (int i = 64; i <= max_size; i += 64){
+    int vec[i];
+    fill_vector_random (vec, i);
+    x << i << endl;
 
-  cout << vector_reduction_seq(vec, size) << endl;
-  cout << vector_reduction_con(vec, size) << endl;
+    begin = clock();
+    ans1 = vector_reduction_seq (vec, i);
+    end = clock();
+    secs = double(end - begin) / CLOCKS_PER_SEC;
+    y_seq << secs << endl;
+
+    begin = clock();
+    ans2 = vector_reduction_con (vec, i);
+    end = clock();
+    secs = double(end - begin) / CLOCKS_PER_SEC;
+    y_con << secs << endl;
+
+    if (ans1 != ans2)
+      cout << "SWW" << endl << ans1 << " " << ans2 << endl;
+  }
 
   return 0;
 }
