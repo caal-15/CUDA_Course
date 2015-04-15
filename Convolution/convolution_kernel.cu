@@ -167,32 +167,68 @@ void convolution_kernel_tiled(float *vec, float *mask, float *ans, int vec_size,
   cudaFree (d_ans);
 }
 
-int main(){
+int main(int argc, char **argv){
+  if (argc < 2){
+    cout << "Usage: ./convolution max_size" << endl;
+    return 0;
+  }
+  const int max_size = atoi(argv[1]);
   srand (time (NULL));
-  float vec[1024], mask[9], c[1024], d[1024], e[1024], f[1024];
-  fill_vector_random(vec, 1024);
-  fill_vector_random(mask, 9);
 
-  convolution_kernel_seq(vec, mask, c, 1024, 9);
-  convolution_kernel_con(vec, mask, d, 1024, 9);
+  ofstream x ("x.mio"),
+  y_seq ("y_seq.mio"),
+  y_con_g("y_con_g.mio"),
+  y_con_c("y_con_c.mio"),
+  y_con_t("y_con_t.mio");
 
-  if (!cmp_vector(c, d, 1024))
-    cout << "SWW" << endl;
+  clock_t begin, end;
+  double secs;
+  float t_vec[32], t_mask[3], t_ans[32];
+  fill_vector_random (t_vec, 32);
+  fill_vector_random (t_mask, 3);
+  convolution_kernel_con(t_vec, t_mask, t_ans, 32, 3);
 
-  convolution_kernel_constant(vec, mask, e, 1024, 9);
+  for (int i = 32; i <= max_size; i += 32){
+    float vec[i], mask[9], c[i], d[i];
+    fill_vector_random(vec, i);
+    fill_vector_random(mask, 9);
 
-  if (!cmp_vector(c, e, 1024))
-    cout << "SWW" << endl;
+    x << i << endl;
 
-  convolution_kernel_tiled(vec, mask, f, 1024, 9);
+    begin = clock();
+    convolution_kernel_seq(vec, mask, c, i, 9);
+    end = clock();
+    secs = double(end - begin) / CLOCKS_PER_SEC;
+    y_seq << secs <<endl;
 
-  if (!cmp_vector(c, f, 1024))
-    cout << "SWW" << endl;
+    begin = clock();
+    convolution_kernel_con(vec, mask, d, i, 9);
+    end = clock();
+    secs = double(end - begin) / CLOCKS_PER_SEC;
+    y_con_g << secs <<endl;
 
-  print_vector(c, 5);
-  print_vector(d, 5);
-  print_vector(e, 5);
-  print_vector(f, 5);
+    if (!cmp_vector(c, d, i))
+      cout << "SWW" << endl;
+
+    begin = clock();
+    convolution_kernel_constant(vec, mask, d, i, 9);
+    end = clock();
+    secs = double(end - begin) / CLOCKS_PER_SEC;
+    y_con_c << secs <<endl;
+
+    if (!cmp_vector(c, d, i))
+      cout << "SWW" << endl;
+
+    begin = clock();
+    convolution_kernel_tiled(vec, mask, d, i, 9);
+    end = clock();
+    secs = double(end - begin) / CLOCKS_PER_SEC;
+    y_con_t << secs <<endl;
+
+    if (!cmp_vector(c, d, i))
+      cout << "SWW" << endl;
+  }
+
 
   return 0;
 }
