@@ -1,1 +1,0 @@
-/home/carlos/Documents/CUDA_Course/Convolution_2D/build/CMakeFiles/convolution2d.dir
