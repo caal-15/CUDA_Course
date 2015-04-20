@@ -124,16 +124,94 @@ void convolution_con_tiled (unsigned char *data, unsigned char *result, int widt
   cudaFree(d_result);
 }
 
+__global__ void convolution_kernel_global (unsigned char *data, char *mask, unsigned char *result, int mask_size, int width, int height){
+  unsigned int row = blockIdx.y * blockDim.y + threadIdx.y;
+  unsigned int col = blockIdx.x * blockDim.x + threadIdx.x;
+  int sum = 0;
+  int start_row = row - (mask_size / 2);
+  int start_col = col - (mask_size / 2);
+  for(int i = 0; i < mask_size; i++){
+    for(int j = 0; j < mask_size; j++ ){
+      if((start_col + j >= 0 && start_col + j < width) && (start_row + i >= 0 && start_row + i < height)){
+        sum += data[(start_row + i) * width + (start_col + j)] * mask[i * mask_size + j];
+      }
+    }
+  }
+  result[row * width + col] = clamp(sum);
+}
+
+void convolution_con_global (unsigned char *data, char *mask, unsigned char *result, int mask_size, int width, int height){
+  unsigned char *d_data, *d_result;
+  char *d_mask;
+
+  cudaMalloc (&d_data, sizeof(unsigned char) * width * height);
+  cudaMalloc (&d_mask, sizeof(char) * mask_size * mask_size);
+  cudaMalloc (&d_result, sizeof(unsigned char) * width * height);
+
+  cudaMemcpy (d_data, data, sizeof(unsigned char) * width * height, cudaMemcpyHostToDevice);
+  cudaMemcpy (d_mask, mask, sizeof(char) * mask_size * mask_size, cudaMemcpyHostToDevice);
+
+  dim3 dimGrid (ceil (width / float (BLOCK_SIZE)), ceil (height / float (BLOCK_SIZE)), 1);
+  dim3 dimBlock (BLOCK_SIZE, BLOCK_SIZE, 1);
+
+  convolution_kernel_global<<<dimGrid, dimBlock>>> (d_data, d_mask, d_result, mask_size, width, height);
+  gpuErrchk( cudaPeekAtLastError() );
+  gpuErrchk( cudaDeviceSynchronize() );
+
+  cudaMemcpy(result, d_result, sizeof(unsigned char) * width * height, cudaMemcpyDeviceToHost);
+
+  cudaFree(d_data);
+  cudaFree(d_mask);
+  cudaFree(d_result);
+}
+
+__global__ void convolution_kernel_constant (unsigned char *data, unsigned char *result, int width, int height){
+  unsigned int row = blockIdx.y * blockDim.y + threadIdx.y;
+  unsigned int col = blockIdx.x * blockDim.x + threadIdx.x;
+  int sum = 0;
+  int start_row = row - (MASK_SIZE / 2);
+  int start_col = col - (MASK_SIZE / 2);
+  for(int i = 0; i < MASK_SIZE; i++){
+    for(int j = 0; j < MASK_SIZE; j++ ){
+      if((start_col + j >= 0 && start_col + j < width) && (start_row + i >= 0 && start_row + i < height)){
+        sum += data[(start_row + i) * width + (start_col + j)] * SOBEL[i * MASK_SIZE + j];
+      }
+    }
+  }
+  result[row * width + col] = clamp(sum);
+}
+
+void convolution_con_constant (unsigned char *data, unsigned char *result, int width, int height){
+  unsigned char *d_data, *d_result;
+
+  cudaMalloc (&d_data, sizeof(unsigned char) * width * height);
+  cudaMalloc (&d_result, sizeof(unsigned char) * width * height);
+
+  cudaMemcpy (d_data, data, sizeof(unsigned char) * width * height, cudaMemcpyHostToDevice);
+
+  dim3 dimGrid (ceil (width / float (BLOCK_SIZE)), ceil (height / float (BLOCK_SIZE)), 1);
+  dim3 dimBlock (BLOCK_SIZE, BLOCK_SIZE, 1);
+
+  convolution_kernel_constant<<<dimGrid, dimBlock>>> (d_data, d_result, width, height);
+  gpuErrchk( cudaPeekAtLastError() );
+  gpuErrchk( cudaDeviceSynchronize() );
+
+  cudaMemcpy(result, d_result, sizeof(unsigned char) * width * height, cudaMemcpyDeviceToHost);
+
+  cudaFree(d_data);
+  cudaFree(d_result);
+}
+
 int main (int argc, char **argv){
   if (argc < 2){
     cout << "Usage: ./concolution2d image_name" << endl;
   }
 
   char mask[] = {-1,0,1,-2,0,2,-1,0,1};
-  gpuErrchk(cudaMemcpyToSymbol (SOBEL, mask, 3 * 3 * sizeof (char)));
+  gpuErrchk(cudaMemcpyToSymbol (SOBEL, mask, MASK_SIZE * MASK_SIZE * sizeof (char)));
 
   Mat image, result;
-  image = imread("../img1.jpg",0);
+  image = imread("../img6.jpg",0);
 
   Size s = image.size();
   int Row = s.width;
@@ -144,12 +222,18 @@ int main (int argc, char **argv){
 
   Gray = image.data;
 
-  convolution_con_tiled(Gray, Out, Row, Col);
-  result.create(Row, Col, CV_8UC1);
+  convolution_con_global(Gray, mask, Out, 3, Row, Col);
+  result.create(Col, Row, CV_8UC1);
   result.data = Out;
-  imwrite ("miau.jpg", result);
+  imwrite ("miau_global.jpg", result);
 
+  convolution_con_constant(Gray, Out, Row, Col);
+  result.data = Out;
+  imwrite ("miau_constant.jpg", result);
 
+  convolution_con_tiled(Gray, Out, Row, Col);
+  result.data = Out;
+  imwrite ("miau_tiled.jpg", result);
 
 
   return 0;
