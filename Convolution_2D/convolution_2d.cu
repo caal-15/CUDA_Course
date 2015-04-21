@@ -31,37 +31,6 @@ __device__ unsigned char clamp(int value){
   return (unsigned char)value;
 }
 
-
-
-__global__ void img2gray_kernel(unsigned char *data, unsigned char *result, int width, int height){
-  int row = blockIdx.y*blockDim.y+threadIdx.y;
-  int col = blockIdx.x*blockDim.x+threadIdx.x;
-  if((row < height) && (col < width)){
-    result[row*width+col] = data[(row*width+col)*3+2]*0.299 + data[(row*width+col)*3+1]*0.587 \
-    + data[(row*width+col)*3]*0.114;
-  }
-}
-
-void img2gray(unsigned char *data, unsigned char *result, int width, int height){
-  unsigned char *d_data, *d_result;
-
-  cudaMalloc (&d_data, sizeof(unsigned char) * width * height * 3);
-  cudaMalloc (&d_result, sizeof(unsigned char) * width * height);
-
-  cudaMemcpy(d_data, data, sizeof(unsigned char) * width * height * 3, cudaMemcpyHostToDevice);
-
-  dim3 dimGrid (ceil (width / float (BLOCK_SIZE)), ceil (height / float (BLOCK_SIZE)), 1);
-  dim3 dimBlock (BLOCK_SIZE, BLOCK_SIZE, 1);
-
-  img2gray_kernel <<<dimGrid, dimBlock>>> (d_data, d_result, width, height);
-  gpuErrchk( cudaPeekAtLastError() );
-  gpuErrchk( cudaDeviceSynchronize() );
-  cudaMemcpy(result, d_result, sizeof(unsigned char) * width * height, cudaMemcpyDeviceToHost);
-
-  cudaFree(d_data);
-  cudaFree(d_result);
-}
-
 __global__ void convolution_kernel_tiled (unsigned char *data, unsigned char *result, int width, int height) {
    __shared__ int s_data[BLOCK_SIZE + MASK_SIZE - 1][BLOCK_SIZE + MASK_SIZE - 1];
   // First batch loading
@@ -203,37 +172,104 @@ void convolution_con_constant (unsigned char *data, unsigned char *result, int w
 }
 
 int main (int argc, char **argv){
-  if (argc < 2){
-    cout << "Usage: ./concolution2d image_name" << endl;
-  }
 
   char mask[] = {-1,0,1,-2,0,2,-1,0,1};
   gpuErrchk(cudaMemcpyToSymbol (SOBEL, mask, MASK_SIZE * MASK_SIZE * sizeof (char)));
 
-  Mat image, result;
-  image = imread("../img6.jpg",0);
+  Mat image, result, result_seq;
+  clock_t begin, end;
+  stringstream path, outpath;
+  ofstream x ("x.mio"),
+  y_seq ("y_seq.mio"),
+  y_con_g ("y_con_g.mio"),
+  y_con_c ("y_con_c.mio"),
+  y_con_t ("y_con_t.mio");
 
-  Size s = image.size();
-  int Row = s.width;
-  int Col = s.height;
+  for (int i = 1; i < 7; i++){
+    path << "../images/img"  << i << ".jpg";
+    image = imread(path.str(), 0);
+    path.str("");
 
-  unsigned char *Gray = (unsigned char*)malloc (sizeof (unsigned char)* Row * Col);
-  unsigned char *Out = (unsigned char*)malloc (sizeof (unsigned char)* Row * Col);
+    Size s = image.size();
+    int width = s.width;
+    int height = s.height;
 
-  Gray = image.data;
+    x << width * height << endl;
 
-  convolution_con_global(Gray, mask, Out, 3, Row, Col);
-  result.create(Col, Row, CV_8UC1);
-  result.data = Out;
-  imwrite ("miau_global.jpg", result);
+    unsigned char *gray = (unsigned char*)malloc (sizeof (unsigned char)* width * height);
+    unsigned char *out_global = (unsigned char*)malloc (sizeof (unsigned char)* width * height);
+    unsigned char *out_constant = (unsigned char*)malloc (sizeof (unsigned char)* width * height);
+    unsigned char *out_tiled = (unsigned char*)malloc (sizeof (unsigned char)* width * height);
 
-  convolution_con_constant(Gray, Out, Row, Col);
-  result.data = Out;
-  imwrite ("miau_constant.jpg", result);
+    gray = image.data;
+    float seq_sum = 0,
+    global_sum = 0,
+    constant_sum = 0,
+    tiled_sum = 0;
 
-  convolution_con_tiled(Gray, Out, Row, Col);
-  result.data = Out;
-  imwrite ("miau_tiled.jpg", result);
+    for (int j = 0; j < 20; j++){
+
+      begin = clock();
+      Sobel (image, result_seq, CV_8UC1, 1, 0, 3, 1, 0, BORDER_DEFAULT);
+      end = clock();
+      seq_sum += float (end - begin) / CLOCKS_PER_SEC;
+
+      begin = clock();
+      convolution_con_global(gray, mask, out_global, 3, width, height);
+      end = clock();
+      global_sum += float (end - begin) / CLOCKS_PER_SEC;
+
+      begin = clock();
+      convolution_con_constant(gray, out_constant, width, height);
+      end = clock();
+      constant_sum += float (end - begin) / CLOCKS_PER_SEC;
+
+      begin = clock();
+      convolution_con_tiled(gray, out_tiled, width, height);
+      end = clock();
+      tiled_sum += float (end - begin) / CLOCKS_PER_SEC;
+    }
+
+    seq_sum /= 20.0;
+    y_seq << seq_sum << endl;
+    global_sum /= 20.0;
+    y_con_g << global_sum << endl;
+    constant_sum /= 20.0;
+    y_con_c << constant_sum << endl;
+    tiled_sum /= 20.0;
+    y_con_t << tiled_sum << endl;
+
+
+
+    outpath << "../outputs/" << i << "_miau_seq" << ".jpg";
+    imwrite (outpath.str(), result_seq);
+    outpath.str("");
+
+    result.create(height, width, CV_8UC1);
+    result.data = out_global;
+    outpath << "../outputs/" << i << "_miau_global" << ".jpg";
+    imwrite (outpath.str(), result);
+    outpath.str("");
+
+    result.data = out_constant;
+    outpath << "../outputs/" << i << "_miau_constant" << ".jpg";
+    imwrite (outpath.str(), result);
+    outpath.str("");
+
+    result.data = out_tiled;
+    outpath << "../outputs/" << i << "_miau_tiled" << ".jpg";
+    imwrite (outpath.str(), result);
+    outpath.str("");
+
+    image.release();
+    result.release();
+    result_seq.release();
+    free (out_global);
+    free (out_constant);
+    free (out_tiled);
+
+  }
+
 
 
   return 0;
