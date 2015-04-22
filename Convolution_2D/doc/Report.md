@@ -46,6 +46,9 @@ A continuación se muestra una tabla con los índices de aceleración obtenidos 
 
 |Imágenes/Implementación|Secuencial|Memoria Global|Memoria Constante|Tiled + Mem. Constante|
 |-----------------------|---------:|-------------:|----------------:|---------------------:|
-|IMG1                   | |   |   |   |
-|   |   |   |   |   |
-|   |   |   |   |   |
+|IMG1  (580 * 580)      |3.43x     |   |   |   |
+|   |3.70x   |   |   |   |
+|   |4.41x   |   |   |   |
+|   |6.52x   |   |   |   |
+|   |8.18x   |   |   |   |
+|   |8.33x   |   |   |   |
