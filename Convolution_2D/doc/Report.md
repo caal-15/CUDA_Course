@@ -23,6 +23,14 @@ Para compilar, estando en la carpeta Convolution_2D:
   cmake ../
   make
   
+  
+    git clone https://github.com/pin3da/gplib.git
+    cd gplib
+    make
+    make check
+    make install
+    make installcheck
+  
 Para correr el programa
 
   ./convolution2d
