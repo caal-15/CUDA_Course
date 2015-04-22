@@ -32,7 +32,7 @@ El comando correrá cada una de las implementaciones de la convolución usando c
 Para generar las gráficas:
 
     cd ..
-    python plotter.py && python barplotter.py
+    python plotter.py && python bar_plotter.py
     
 ##Resultados
 Como era de esperarse, la versión secuencial se queda atrás incluso en imágenes pequeñas (580 * 580 pixeles), a continuación se muestra una imagen comparando el tiempo de ejecución de cada algoritmo para cada una de las imágenes de entrada:
@@ -63,6 +63,6 @@ A continuación se muestra una tabla con los índices de aceleración obtenidos 
 ##Conclusiones
 * La Aceleración incluso usando memoria global es evidente, e incluso para imágenes relativamente pequeñas (3.43x para una imágen de 580 * 580), esto se debe probablemente a la naturaleza medianamente paralelizable del proceso de convolución.
 * La versión tiled siempre es la más rápida, lo que demuestra la importancia del uso de Memoria Compartida.
-* Sin embargo cabe anotar que la mejora de la versión tiled respecto a la versión con memoria compartida es poca (oscilando entre 1.01x y 1.11x) comparado con la mejora de la versión con memoria compartida respecto a al versión con memoria global (oscilando entre 1.18 y 1.35x).
-* Se va notando un incremento en la mejora entre la versión compartida y la tiled a medida que crece el tamaño de la imágen (1.01x - 1.11x).
+* Sin embargo cabe anotar que la mejora de la versión tiled respecto a la versión con memoria compartida es poca (oscilando entre 1.01x y 1.11x) comparado con la mejora de la versión con memoria constante respecto a al versión con memoria global (oscilando entre 1.18 y 1.35x).
+* Se va notando un incremento en la mejora entre la versión constante y la tiled a medida que crece el tamaño de la imágen (1.01x - 1.11x).
 
