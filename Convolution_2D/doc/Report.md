@@ -2,9 +2,10 @@ Convolución en dos dimensiones en CUDA
 ======================================
 ##Introducción
 En este repositorio se presentan tres implementaciones básicas de la convolución en 2 Dimensiones (específicamente usando el filtro de Sobel) sobre imágenes (limitado a imagenes en escala de grises) en CUDA:
--Convolución ingenua usando memoria Global.
--Convolución ingenua usando memoria Constante.
--Convolución Tiled usando además memoria constante.
+
+* Convolución ingenua usando memoria Global.
+* Convolución ingenua usando memoria Constante.
+* Convolución Tiled usando además memoria constante.
 
 ##Dependencias
 En este ejemplo particular se aprovechan algunas de las funcionalidades de la librería OpenCV como implementación secuencial del filtro de Sobel que esta provee, además de funcionalidades de lectura y escritura de imágenes. Para instalar en Debian:
